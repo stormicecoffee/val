@@ -3,30 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evasive Cookie Decline Prank</title>
+    <title>Will you be my Valentine Anu? 💕</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600;700&display=swap');
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         html, body {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-                sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            font-family: 'Quicksand', sans-serif;
         }
+
         #root {
             width: 100%;
             height: 100%;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 30px;
+            animation: float 4s ease-in-out infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .title-font {
+            font-family: 'Pacifico', cursive;
+        }
+
+        @keyframes pulse-heart {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .pulse-heart {
+            animation: pulse-heart 1s ease-in-out infinite;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 24px;
+            animation: confetti-fall 3s linear forwards;
         }
     </style>
 </head>
@@ -36,131 +72,154 @@
     <script type="text/babel">
         const { useState, useRef, useEffect } = React;
 
-        // Cookie Icon Component
-        const Cookie = ({ className }) => (
+        // Heart Icon Component
+        const HeartIcon = ({ className }) => (
             <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
                 viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                fill="currentColor"
                 className={className}
             >
-                <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"></path>
-                <path d="M8.5 8.5v.01"></path>
-                <path d="M16 15.5v.01"></path>
-                <path d="M12 12v.01"></path>
-                <path d="M11 17v.01"></path>
-                <path d="M7 14v.01"></path>
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
             </svg>
         );
 
-        // MousePointer Icon Component
-        const MousePointer = ({ className }) => (
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className={className}
-            >
-                <path d="m3 3 7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path>
-                <path d="m13 13 6 6"></path>
-            </svg>
-        );
+        // Floating Hearts Background
+        const FloatingHearts = () => {
+            const hearts = ['💕', '💖', '💗', '💓', '💝', '💘'];
+            const positions = [
+                { left: '10%', top: '15%', delay: '0s' },
+                { left: '20%', top: '60%', delay: '1s' },
+                { left: '80%', top: '25%', delay: '2s' },
+                { left: '70%', top: '70%', delay: '0.5s' },
+                { left: '30%', top: '30%', delay: '1.5s' },
+                { left: '85%', top: '80%', delay: '2.5s' },
+                { left: '15%', top: '85%', delay: '3s' },
+                { left: '60%', top: '40%', delay: '1.8s' },
+            ];
+
+            return (
+                <>
+                    {positions.map((pos, i) => (
+                        <div
+                            key={i}
+                            className="heart"
+                            style={{
+                                left: pos.left,
+                                top: pos.top,
+                                animationDelay: pos.delay,
+                            }}
+                        >
+                            {hearts[i % hearts.length]}
+                        </div>
+                    ))}
+                </>
+            );
+        };
+
+        // Confetti Component
+        const Confetti = () => {
+            const emojis = ['💖', '✨', '💕', '🌸', '💝', '🎀', '🌺', '💐'];
+            const [confettiPieces, setConfettiPieces] = useState([]);
+
+            useEffect(() => {
+                const pieces = Array.from({ length: 30 }, (_, i) => ({
+                    id: i,
+                    emoji: emojis[Math.floor(Math.random() * emojis.length)],
+                    left: Math.random() * 100,
+                    delay: Math.random() * 0.5,
+                }));
+                setConfettiPieces(pieces);
+            }, []);
+
+            return (
+                <>
+                    {confettiPieces.map(piece => (
+                        <div
+                            key={piece.id}
+                            className="confetti"
+                            style={{
+                                left: `${piece.left}%`,
+                                animationDelay: `${piece.delay}s`,
+                            }}
+                        >
+                            {piece.emoji}
+                        </div>
+                    ))}
+                </>
+            );
+        };
 
         function App() {
-            const [showModal, setShowModal] = useState(true);
-            const [accepted, setAccepted] = useState(false);
-            const [declinePosition, setDeclinePosition] = useState({ x: 200, y: 0 });
-            const [isDeclineInitialized, setIsDeclineInitialized] = useState(false);
-            const declineButtonRef = useRef(null);
+            const [answered, setAnswered] = useState(false);
+            const [noPosition, setNoPosition] = useState({ x: 200, y: 0 });
+            const [isNoInitialized, setIsNoInitialized] = useState(false);
+            const [showConfetti, setShowConfetti] = useState(false);
+            const noButtonRef = useRef(null);
             const contentRef = useRef(null);
             const buttonContainerRef = useRef(null);
 
             useEffect(() => {
                 const initPosition = () => {
-                    if (contentRef.current && buttonContainerRef.current && declineButtonRef.current) {
+                    if (contentRef.current && buttonContainerRef.current && noButtonRef.current) {
                         const contentRect = contentRef.current.getBoundingClientRect();
                         const buttonContainerRect = buttonContainerRef.current.getBoundingClientRect();
 
-                        // Get the actual Accept button element (first button in container)
-                        const acceptButton = buttonContainerRef.current.querySelector('button');
-                        if (!acceptButton) return;
+                        const yesButton = buttonContainerRef.current.querySelector('button');
+                        if (!yesButton) return;
 
-                        const acceptButtonRect = acceptButton.getBoundingClientRect();
-
-                        // Position Decline button to the right of Accept button
+                        const yesButtonRect = yesButton.getBoundingClientRect();
                         const containerOffsetY = buttonContainerRect.top - contentRect.top;
-                        const acceptButtonRelativeLeft = acceptButtonRect.left - contentRect.left;
-                        const startX = acceptButtonRelativeLeft + acceptButtonRect.width + 16; // Accept button position + its width + gap
+                        const yesButtonRelativeLeft = yesButtonRect.left - contentRect.left;
+                        const startX = yesButtonRelativeLeft + yesButtonRect.width + 20;
 
-                        setDeclinePosition({ x: startX, y: containerOffsetY });
-                        setIsDeclineInitialized(true);
+                        setNoPosition({ x: startX, y: containerOffsetY });
+                        setIsNoInitialized(true);
                     }
                 };
 
-                if (!isDeclineInitialized) {
-                    // Small delay to ensure elements are rendered
+                if (!isNoInitialized) {
                     setTimeout(initPosition, 100);
                 }
-            }, [isDeclineInitialized]);
+            }, [isNoInitialized]);
 
             const handleMouseMove = (e) => {
-                if (!declineButtonRef.current || !contentRef.current || !isDeclineInitialized) return;
+                if (!noButtonRef.current || !contentRef.current || !isNoInitialized || answered) return;
 
-                const buttonRect = declineButtonRef.current.getBoundingClientRect();
+                const buttonRect = noButtonRef.current.getBoundingClientRect();
                 const contentRect = contentRef.current.getBoundingClientRect();
 
-                // Get mouse position relative to content area
                 const mouseX = e.clientX - contentRect.left;
                 const mouseY = e.clientY - contentRect.top;
 
-                // Get button center position (relative to content)
-                const buttonCenterX = declinePosition.x + buttonRect.width / 2;
-                const buttonCenterY = declinePosition.y + buttonRect.height / 2;
+                const buttonCenterX = noPosition.x + buttonRect.width / 2;
+                const buttonCenterY = noPosition.y + buttonRect.height / 2;
 
-                // Calculate distance from mouse to button center
                 const distanceX = mouseX - buttonCenterX;
                 const distanceY = mouseY - buttonCenterY;
                 const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
 
-                // Detection range for evasive behavior
                 const detectionRange = 150;
                 if (distance < detectionRange) {
                     const angle = Math.atan2(distanceY, distanceX);
-                    // Escape distance increases as mouse gets closer (shorter jumps)
                     let escapeDistance = Math.max(50, 120 - distance);
 
-                    // Detect if button is near edges/corners
                     const padding = 15;
                     const maxX = contentRect.width - buttonRect.width - padding;
                     const maxY = contentRect.height - buttonRect.height - padding;
 
-                    const nearLeftEdge = declinePosition.x < padding + 50;
-                    const nearRightEdge = declinePosition.x > maxX - 50;
-                    const nearTopEdge = declinePosition.y < padding + 50;
-                    const nearBottomEdge = declinePosition.y > maxY - 50;
+                    const nearLeftEdge = noPosition.x < padding + 50;
+                    const nearRightEdge = noPosition.x > maxX - 50;
+                    const nearTopEdge = noPosition.y < padding + 50;
+                    const nearBottomEdge = noPosition.y > maxY - 50;
 
-                    // If cornered, increase escape distance moderately
                     if ((nearLeftEdge || nearRightEdge) && (nearTopEdge || nearBottomEdge)) {
-                        escapeDistance *= 1.5; // 50% boost when cornered instead of doubling
+                        escapeDistance *= 1.5;
                     }
 
-                    // Calculate new position (move away from mouse)
                     let newX = buttonCenterX - Math.cos(angle) * escapeDistance - buttonRect.width / 2;
                     let newY = buttonCenterY - Math.sin(angle) * escapeDistance - buttonRect.height / 2;
 
-                    // If would be out of bounds, move to opposite side (but not as far)
                     if (newX < padding) {
                         newX = Math.min(maxX, contentRect.width / 2 + 100);
                     } else if (newX > maxX) {
@@ -173,28 +232,30 @@
                         newY = Math.max(padding, contentRect.height / 2 - 50);
                     }
 
-                    // Final clamp to bounds
                     newX = Math.max(padding, Math.min(newX, maxX));
                     newY = Math.max(padding, Math.min(newY, maxY));
 
-                    setDeclinePosition({ x: newX, y: newY });
+                    setNoPosition({ x: newX, y: newY });
                 }
             };
 
-            const handleAccept = () => {
-                setAccepted(true);
-                setTimeout(() => {
-                    setShowModal(false);
-                }, 2000);
+            const handleYes = () => {
+                setAnswered(true);
+                setShowConfetti(true);
             };
 
-            if (!showModal) {
+            if (answered) {
                 return (
-                    <div className="w-full h-full bg-white flex items-center justify-center">
-                        <div className="text-center">
-                            <Cookie className="w-24 h-24 mx-auto text-amber-600 mb-4" />
-                            <h1 className="text-4xl font-bold text-gray-800 mb-2">Thanks for accepting!</h1>
-                            <p className="text-gray-600">You had no choice anyway 😄</p>
+                    <div className="relative w-full h-full bg-gradient-to-br from-pink-100 via-purple-100 to-pink-200 flex items-center justify-center overflow-hidden">
+                        <FloatingHearts />
+                        {showConfetti && <Confetti />}
+                        <div className="text-center z-10 animate-bounce">
+                            <div className="pulse-heart inline-block mb-6">
+                                <HeartIcon className="w-32 h-32 text-pink-500" />
+                            </div>
+                            <h1 className="title-font text-6xl text-pink-600 mb-4">Yay! Bubba is super happy 💕</h1>
+                            <p className="text-2xl text-purple-600 font-semibold">I knew you'd say yes!</p>
+                            <p className="text-lg text-pink-500 mt-4">You've made me the happiest! 🥰</p>
                         </div>
                     </div>
                 );
@@ -202,76 +263,53 @@
 
             return (
                 <div
-                    className="relative w-full h-full bg-white"
+                    className="relative w-full h-full bg-gradient-to-br from-pink-100 via-purple-100 to-pink-200"
                     onMouseMove={handleMouseMove}
                     style={{ overflow: 'hidden' }}
                 >
+                    <FloatingHearts />
+
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div ref={contentRef} className="relative max-w-3xl w-full px-12 pointer-events-auto">
-                            {accepted ? (
-                                <div className="text-center animate-pulse">
-                                    <Cookie className="w-20 h-20 mx-auto text-amber-600 mb-4" />
-                                    <h2 className="text-3xl font-bold text-gray-800 mb-2">Great choice! 🎉</h2>
-                                    <p className="text-gray-600">We knew you'd come around...</p>
+                        <div ref={contentRef} className="relative max-w-2xl w-full px-8 pointer-events-auto">
+                            <div className="text-center">
+                                <div className="pulse-heart inline-block mb-8">
+                                    <HeartIcon className="w-24 h-24 text-pink-500" />
                                 </div>
-                            ) : (
-                                <>
-                                    <div className="flex items-center justify-center mb-8">
-                                        <Cookie className="w-16 h-16 text-amber-600" />
-                                    </div>
 
-                                    <h1 className="text-4xl font-bold text-center text-gray-800 mb-4">
-                                        We Value Your Privacy
-                                    </h1>
+                                <h1 className="title-font text-5xl md:text-6xl text-pink-600 mb-6">
+                                    Will you be my Valentine Anu?
+                                </h1>
 
-                                    <p className="text-center text-gray-600 mb-8 text-lg leading-relaxed">
-                                        We use cookies to enhance your browsing experience, serve personalized content,
-                                        and analyze our traffic. We also share information about your use of our site
-                                        with our social media, advertising, and analytics partners.
-                                    </p>
+                                <p className="text-xl text-purple-600 mb-12 font-semibold">
+                                    Please say yes! 🥺💕
+                                </p>
 
-                                    <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-8">
-                                        <div className="flex items-start">
-                                            <MousePointer className="w-5 h-5 text-amber-600 mr-3 mt-1 flex-shrink-0" />
-                                            <p className="text-sm text-gray-700">
-                                                By continuing to use our website, you acknowledge that you have read and
-                                                understood our Cookie Policy and Privacy Policy.
-                                            </p>
-                                        </div>
-                                    </div>
+                                <div ref={buttonContainerRef} className="flex justify-center gap-5">
+                                    <button
+                                        onClick={handleYes}
+                                        className="bg-gradient-to-r from-pink-400 to-pink-600 hover:from-pink-500 hover:to-pink-700 text-white font-bold py-4 px-12 rounded-full transition-all duration-200 transform hover:scale-110 shadow-lg text-xl"
+                                    >
+                                        Yes! 💖
+                                    </button>
+                                    {/* Invisible placeholder */}
+                                    <div style={{ width: '140px', height: '56px', opacity: 0 }}></div>
+                                </div>
 
-                                    <div ref={buttonContainerRef} className="flex justify-center gap-4">
-                                        <button
-                                            onClick={handleAccept}
-                                            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg text-sm"
-                                        >
-                                            Accept Cookies
-                                        </button>
-                                        {/* Invisible placeholder to reserve space for Decline button */}
-                                        <div style={{ width: '154px', height: '41px', opacity: 0 }}></div>
-                                    </div>
+                            </div>
 
-                                    <p className="text-center text-xs text-gray-400 mt-8">
-                                        This website uses essential cookies. You can't decline them.
-                                    </p>
-                                </>
-                            )}
-
-                            {/* Decline button positioned absolutely within content area */}
-                            {!accepted && (
-                                <button
-                                    ref={declineButtonRef}
-                                    onClick={() => alert('Nice try! But this button is just for show 😈')}
-                                    className="absolute bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-lg cursor-pointer text-sm z-50"
-                                    style={{
-                                        left: `${declinePosition.x}px`,
-                                        top: `${declinePosition.y}px`,
-                                        transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                                    }}
-                                >
-                                    Decline Cookies
-                                </button>
-                            )}
+                            {/* No button - evasive */}
+                            <button
+                                ref={noButtonRef}
+                                onClick={() => alert('Aww, come on! Give it another try! 🥺💕')}
+                                className="absolute bg-gradient-to-r from-purple-300 to-purple-400 hover:from-purple-400 hover:to-purple-500 text-white font-bold py-4 px-12 rounded-full shadow-lg text-xl z-50"
+                                style={{
+                                    left: `${noPosition.x}px`,
+                                    top: `${noPosition.y}px`,
+                                    transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                                }}
+                            >
+                                No 😢
+                            </button>
                         </div>
                     </div>
                 </div>
