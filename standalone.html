@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evasive Cookie Decline Prank</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        #root {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+
+        // Cookie Icon Component
+        const Cookie = ({ className }) => (
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={className}
+            >
+                <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"></path>
+                <path d="M8.5 8.5v.01"></path>
+                <path d="M16 15.5v.01"></path>
+                <path d="M12 12v.01"></path>
+                <path d="M11 17v.01"></path>
+                <path d="M7 14v.01"></path>
+            </svg>
+        );
+
+        // MousePointer Icon Component
+        const MousePointer = ({ className }) => (
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={className}
+            >
+                <path d="m3 3 7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path>
+                <path d="m13 13 6 6"></path>
+            </svg>
+        );
+
+        function App() {
+            const [showModal, setShowModal] = useState(true);
+            const [accepted, setAccepted] = useState(false);
+            const [declinePosition, setDeclinePosition] = useState({ x: 200, y: 0 });
+            const [isDeclineInitialized, setIsDeclineInitialized] = useState(false);
+            const declineButtonRef = useRef(null);
+            const modalRef = useRef(null);
+            const contentRef = useRef(null);
+            const buttonContainerRef = useRef(null);
+
+            useEffect(() => {
+                const initPosition = () => {
+                    if (contentRef.current && buttonContainerRef.current && declineButtonRef.current) {
+                        const contentRect = contentRef.current.getBoundingClientRect();
+                        const buttonContainerRect = buttonContainerRef.current.getBoundingClientRect();
+
+                        // Calculate button container position relative to content area
+                        const containerOffsetY = buttonContainerRect.top - contentRect.top;
+
+                        // Start at 180px from left (more gap), at the same Y position as the button container
+                        setDeclinePosition({ x: 180, y: containerOffsetY });
+                        setIsDeclineInitialized(true);
+                    }
+                };
+
+                if (!isDeclineInitialized) {
+                    // Small delay to ensure elements are rendered
+                    setTimeout(initPosition, 100);
+                }
+            }, [isDeclineInitialized]);
+
+            const handleMouseMove = (e) => {
+                if (!declineButtonRef.current || !contentRef.current || !isDeclineInitialized) return;
+
+                const buttonRect = declineButtonRef.current.getBoundingClientRect();
+                const contentRect = contentRef.current.getBoundingClientRect();
+
+                // Get mouse position relative to content area
+                const mouseX = e.clientX - contentRect.left;
+                const mouseY = e.clientY - contentRect.top;
+
+                // Get button center position (relative to content)
+                const buttonCenterX = declinePosition.x + buttonRect.width / 2;
+                const buttonCenterY = declinePosition.y + buttonRect.height / 2;
+
+                // Calculate distance from mouse to button center
+                const distanceX = mouseX - buttonCenterX;
+                const distanceY = mouseY - buttonCenterY;
+                const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+                // Detection range for evasive behavior
+                const detectionRange = 150;
+                if (distance < detectionRange) {
+                    const angle = Math.atan2(distanceY, distanceX);
+                    // Escape distance increases as mouse gets closer (shorter jumps)
+                    let escapeDistance = Math.max(50, 120 - distance);
+
+                    // Detect if button is near edges/corners
+                    const padding = 15;
+                    const maxX = contentRect.width - buttonRect.width - padding;
+                    const maxY = contentRect.height - buttonRect.height - padding;
+
+                    const nearLeftEdge = declinePosition.x < padding + 50;
+                    const nearRightEdge = declinePosition.x > maxX - 50;
+                    const nearTopEdge = declinePosition.y < padding + 50;
+                    const nearBottomEdge = declinePosition.y > maxY - 50;
+
+                    // If cornered, increase escape distance moderately
+                    if ((nearLeftEdge || nearRightEdge) && (nearTopEdge || nearBottomEdge)) {
+                        escapeDistance *= 1.5; // 50% boost when cornered instead of doubling
+                    }
+
+                    // Calculate new position (move away from mouse)
+                    let newX = buttonCenterX - Math.cos(angle) * escapeDistance - buttonRect.width / 2;
+                    let newY = buttonCenterY - Math.sin(angle) * escapeDistance - buttonRect.height / 2;
+
+                    // If would be out of bounds, move to opposite side (but not as far)
+                    if (newX < padding) {
+                        newX = Math.min(maxX, contentRect.width / 2 + 100);
+                    } else if (newX > maxX) {
+                        newX = Math.max(padding, contentRect.width / 2 - 100);
+                    }
+
+                    if (newY < padding) {
+                        newY = Math.min(maxY, contentRect.height / 2 + 50);
+                    } else if (newY > maxY) {
+                        newY = Math.max(padding, contentRect.height / 2 - 50);
+                    }
+
+                    // Final clamp to bounds
+                    newX = Math.max(padding, Math.min(newX, maxX));
+                    newY = Math.max(padding, Math.min(newY, maxY));
+
+                    setDeclinePosition({ x: newX, y: newY });
+                }
+            };
+
+            const handleAccept = () => {
+                setAccepted(true);
+                setTimeout(() => {
+                    setShowModal(false);
+                }, 2000);
+            };
+
+            if (!showModal) {
+                return (
+                    <div className="w-full h-full bg-white flex items-center justify-center">
+                        <div className="text-center">
+                            <Cookie className="w-24 h-24 mx-auto text-amber-600 mb-4" />
+                            <h1 className="text-4xl font-bold text-gray-800 mb-2">Thanks for accepting!</h1>
+                            <p className="text-gray-600">You had no choice anyway 😄</p>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div
+                    ref={modalRef}
+                    className="relative w-full h-full bg-white"
+                    onMouseMove={handleMouseMove}
+                    style={{ overflow: 'hidden' }}
+                >
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div ref={contentRef} className="relative max-w-3xl w-full px-12 pointer-events-auto">
+                            {accepted ? (
+                                <div className="text-center animate-pulse">
+                                    <Cookie className="w-20 h-20 mx-auto text-amber-600 mb-4" />
+                                    <h2 className="text-3xl font-bold text-gray-800 mb-2">Great choice! 🎉</h2>
+                                    <p className="text-gray-600">We knew you'd come around...</p>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="flex items-center justify-center mb-8">
+                                        <Cookie className="w-16 h-16 text-amber-600" />
+                                    </div>
+
+                                    <h1 className="text-4xl font-bold text-center text-gray-800 mb-4">
+                                        We Value Your Privacy
+                                    </h1>
+
+                                    <p className="text-center text-gray-600 mb-8 text-lg leading-relaxed">
+                                        We use cookies to enhance your browsing experience, serve personalized content,
+                                        and analyze our traffic. We also share information about your use of our site
+                                        with our social media, advertising, and analytics partners.
+                                    </p>
+
+                                    <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-8">
+                                        <div className="flex items-start">
+                                            <MousePointer className="w-5 h-5 text-amber-600 mr-3 mt-1 flex-shrink-0" />
+                                            <p className="text-sm text-gray-700">
+                                                By continuing to use our website, you acknowledge that you have read and
+                                                understood our Cookie Policy and Privacy Policy.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div ref={buttonContainerRef} className="flex gap-4">
+                                        <button
+                                            onClick={handleAccept}
+                                            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg text-sm"
+                                        >
+                                            Accept Cookies
+                                        </button>
+                                    </div>
+
+                                    <p className="text-center text-xs text-gray-400 mt-8">
+                                        This website uses essential cookies. You can't decline them.
+                                    </p>
+                                </>
+                            )}
+
+                            {/* Decline button positioned absolutely within content area */}
+                            {!accepted && (
+                                <button
+                                    ref={declineButtonRef}
+                                    onClick={() => alert('Nice try! But this button is just for show 😈')}
+                                    className="absolute bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-lg cursor-pointer text-sm z-50"
+                                    style={{
+                                        left: `${declinePosition.x}px`,
+                                        top: `${declinePosition.y}px`,
+                                        transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                                    }}
+                                >
+                                    Decline Cookies
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
