@@ -84,7 +84,6 @@
             const [declinePosition, setDeclinePosition] = useState({ x: 200, y: 0 });
             const [isDeclineInitialized, setIsDeclineInitialized] = useState(false);
             const declineButtonRef = useRef(null);
-            const modalRef = useRef(null);
             const contentRef = useRef(null);
             const buttonContainerRef = useRef(null);
 
@@ -94,11 +93,18 @@
                         const contentRect = contentRef.current.getBoundingClientRect();
                         const buttonContainerRect = buttonContainerRef.current.getBoundingClientRect();
 
-                        // Calculate button container position relative to content area
-                        const containerOffsetY = buttonContainerRect.top - contentRect.top;
+                        // Get the actual Accept button element (first button in container)
+                        const acceptButton = buttonContainerRef.current.querySelector('button');
+                        if (!acceptButton) return;
 
-                        // Start at 180px from left (more gap), at the same Y position as the button container
-                        setDeclinePosition({ x: 180, y: containerOffsetY });
+                        const acceptButtonRect = acceptButton.getBoundingClientRect();
+
+                        // Position Decline button to the right of Accept button
+                        const containerOffsetY = buttonContainerRect.top - contentRect.top;
+                        const acceptButtonRelativeLeft = acceptButtonRect.left - contentRect.left;
+                        const startX = acceptButtonRelativeLeft + acceptButtonRect.width + 16; // Accept button position + its width + gap
+
+                        setDeclinePosition({ x: startX, y: containerOffsetY });
                         setIsDeclineInitialized(true);
                     }
                 };
@@ -196,7 +202,6 @@
 
             return (
                 <div
-                    ref={modalRef}
                     className="relative w-full h-full bg-white"
                     onMouseMove={handleMouseMove}
                     style={{ overflow: 'hidden' }}
@@ -235,13 +240,15 @@
                                         </div>
                                     </div>
 
-                                    <div ref={buttonContainerRef} className="flex gap-4">
+                                    <div ref={buttonContainerRef} className="flex justify-center gap-4">
                                         <button
                                             onClick={handleAccept}
                                             className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg text-sm"
                                         >
                                             Accept Cookies
                                         </button>
+                                        {/* Invisible placeholder to reserve space for Decline button */}
+                                        <div style={{ width: '154px', height: '41px', opacity: 0 }}></div>
                                     </div>
 
                                     <p className="text-center text-xs text-gray-400 mt-8">
